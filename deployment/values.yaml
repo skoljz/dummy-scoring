@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image: 
+  repository: ghcr.io/skoljz/dummy-scoring
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+env:
+  MODEL_PATH: /app/model.pkl
+
+name: dummy-scoring
