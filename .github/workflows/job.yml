@@ -1,0 +1,36 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main", "github_actions" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Kubernetes cluster with kind
+      uses: helm/kind-action@v1.8.0
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ghcr.io/skoljz/dummy-scoring:latest
+
+    - name: Load image into kind cluster
+      run: kind load docker-image ghcr.io/skoljz/dummy-scoring:latest --name chart-testing
+
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push image to GHCR
+      run: docker push ghcr.io/skoljz/dummy-scoring:latest
+
+    - name: Upgrade helm
+      run: helm upgrade --install dummy-scoring ./deployment --set image.repository=ghcr.io/skoljz/dummy-scoring --set image.tag=latest
+
+    - name: Wait for rollout
+      run: kubectl rollout status deployment/dummy-scoring
+
+    - name: Get all resources
+      run: kubectl get all -A
