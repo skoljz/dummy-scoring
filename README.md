@@ -1,4 +1,4 @@
-# Dummy Sсorign
+# Dummy Sсoring
 
 A tiny FastAPI app that provide a **dummy credit‑scoring model** with a single `POST /predict` endpoint. Useful as a template or sandbox for ML‑model packaging, Dockerisation and Helm deployment.
 
